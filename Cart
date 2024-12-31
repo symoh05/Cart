@@ -1,0 +1,39 @@
+<?php
+session_start();
+
+// Initialize the cart if not already done
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
+}
+
+// Include the database connection
+include('db.php');
+
+// Add item to the cart
+if (isset($_GET['action']) && $_GET['action'] == 'add' && isset($_GET['id'])) {
+    $productId = $_GET['id'];
+    // Check if the product already exists in the cart
+    if (!isset($_SESSION['cart'][$productId])) {
+        $_SESSION['cart'][$productId] = 1;
+    } else {
+        $_SESSION['cart'][$productId]++;
+    }
+}
+
+// Remove item from cart
+if (isset($_GET['action']) && $_GET['action'] == 'remove' && isset($_GET['id'])) {
+    $productId = $_GET['id'];
+    unset($_SESSION['cart'][$productId]);
+}
+
+// API Response for Cart Count
+if (isset($_GET['action']) && $_GET['action'] == 'count') {
+    $cartCount = array_sum($_SESSION['cart']); // Calculate total quantity in cart
+    header('Content-Type: application/json');
+    echo json_encode(['count' => $cartCount]);
+    exit; // Stop further execution for API response
+}
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+?>
